@@ -1,0 +1,83 @@
+name: Autograding Tests
+'on':
+  push:
+    # Only run on main branch to avoid triggering infinitely,
+    # when points bar branch is updated (see update-points-bar job below)
+    branches:
+    - 'main'
+  workflow_dispatch:
+  repository_dispatch:
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    outputs:
+      # Setup outputs for update-points-bar job below
+      points: ${{ steps.autograder.outputs.points }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    #############################
+    # Input-output test
+    #
+    #   https://github.com/classroom-resources/autograding-io-grader
+    #
+    # IMPORTANT: add this test to autograder below!
+    #
+    - name: Hello world
+      id: hello-world
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Hello world
+        setup-command: '' # (Optional) Run before the test is run.
+        command: bash solution/hello.sh
+        input: ''
+        expected-output: Hello World!
+        comparison-method: exact # Variants: exact, included, regex
+        timeout: 1 # The amount of minutes the test is allowed to run before it is killed. Maximum 60 minutes.
+        # max-score: 10 # (Optional) The amount of points awarded if the test passes.
+
+    #############################
+    # Autograding reporter
+    #
+    # IMPORTANT: update env variables and runners below to use actual tests defined above!
+    #
+    - name: Autograding Reporter
+      id: autograder
+      uses: liontiger23/autograding-grading-reporter@v1
+      env:
+        HELLO-WORLD_RESULTS: "${{steps.hello-world.outputs.result}}"
+      with:
+        runners: hello-world
+
+  ############################
+  # Generate points bar badge
+  #
+  # Add badge to README.md with
+  #
+  #   ![Points](../../blob/badges/.github/badges/points-bar.svg)
+  #
+  # or if you want to float it to the right:
+  #
+  #   <img alt="Points" align="right" height="36" src="../../blob/badges/.github/badges/points-bar.svg" />
+  #
+  # Note: will run even if autograding failed thanks to `if: success() || failure()`.
+  #
+  update-points-bar:
+    needs: run-autograding-tests
+    if: ${{ (success() || failure()) && needs.run-autograding-tests.outputs.points }}
+    uses: markpatterson27/points-bar/.github/workflows/reusable-workflow.yml@main
+    permissions:
+      contents: write
+    with:
+      points: ${{ needs.run-autograding-tests.outputs.points }}
+      path: '.github/badges/points-bar.svg'
+      label: 'Баллы'
+      branch: badges
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
