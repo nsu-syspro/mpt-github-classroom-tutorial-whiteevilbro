@@ -194,11 +194,11 @@ To https://github.com/nsu-syspro/mpt-github-classroom-tutorial-<your-github-name
 > https://github.com/nsu-syspro/mpt-github-classroom-tutorial-<your-github-name>/compare/nsu-syspro:mpt-github-classroom-tutorial-<your-github-name>:feedback...main
 > ```
 > 
-> Затем нужно нажать "Create pull request":
+> Затем нужно нажать **"Create pull request"**:
 > 
 > ![](/images/feedback-pr.png)
 >
-> Затем достаточно заполнить поле "Title" и нажать "Create pull request":
+> Затем достаточно заполнить поле **"Title"** и нажать **"Create pull request"**:
 > 
 > ![](/images/feedback-pr-title.png)
 
